@@ -103,11 +103,9 @@ def schedule_pools():
         write_to_excel(row)
         time.sleep(10)
 
-        
-
 if __name__ == "__main__":
-    schedule.every(1).day.do(get_pool_list)
-    schedule.every(5).minutes.do(schedule_pools)
+    schedule.every(20).seconds.do(get_pool_list)
+    schedule.every(40).seconds.do(schedule_pools)
     while True:
         schedule.run_pending()
         
