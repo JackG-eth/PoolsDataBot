@@ -1,5 +1,7 @@
 
+from ast import Break
 import json
+from pyparsing import empty
 import requests
 import pandas as pd
 import schedule
@@ -35,18 +37,36 @@ def write_to_excel(tokenAddress):
         worksheet.write('C1', 'ltoken') 
         worksheet.write('D1', 'stoken') 
         workbook.close()
+        # Adding twice as theres a bug reading in the excel file with one value logged.
+        add_value(excel_file ,df)
+        add_value(excel_file ,df)
 
-    else:    
-        rows = df.values.tolist()
-        workbook = load_workbook(excel_file)
-        sheet = workbook['Time Series Data']
-        for row in rows:
-            sheet.append(row)
-        workbook.save(excel_file)
+    elif check_exists(excel_file, df) == False:
+        add_value(excel_file ,df)
+
+
+def check_exists(excel_file ,df):
+    existingDF = pd.read_excel(excel_file, engine='openpyxl' ,sheet_name='Time Series Data')
+    if existingDF.empty == False and existingDF['timestamp'][len(df)-1] == df['timestamp'][0]:
+        print('value already added')
+        return True
+    else:
+        return False
+
+def add_value(excel_file ,df):
+    print("added twice")
+    rows = df.values.tolist()
+    workbook = load_workbook(excel_file)
+    sheet = workbook['Time Series Data']
+    for row in rows:
+        sheet.append(row)
+    workbook.save(excel_file)
+    workbook.close()
+
 
 if __name__ == "__main__":
-    schedule.every(1).hour.do(lambda: write_to_excel('0x3c16b9efe5e4fc0ec3963f17c64a3dcbf7269207'))
-    schedule.every(1).hour.do(lambda: write_to_excel('0x6d3fb4aa7ddca8cbc88f7ba94b36ba83ff6ba234'))
+    schedule.every(3).seconds.do(lambda: write_to_excel('0x3c16b9efe5e4fc0ec3963f17c64a3dcbf7269207'))
+    schedule.every(3).seconds.do(lambda: write_to_excel('0x6d3fb4aa7ddca8cbc88f7ba94b36ba83ff6ba234'))
     while True:
         schedule.run_pending()
    
