@@ -101,11 +101,13 @@ def schedule_pools():
     rows = list(chain.from_iterable(existingPools.values.tolist()))
     for row in rows:
         write_to_excel(row)
-        time.sleep(10)
+        time.sleep(5)
 
 if __name__ == "__main__":
-    schedule.every(20).seconds.do(get_pool_list)
-    schedule.every(40).seconds.do(schedule_pools)
+    get_pool_list()
+    schedule_pools()
+    schedule.every(5).minutes.do(schedule_pools)
+    schedule.every(1).week.do(get_pool_list)
     while True:
         schedule.run_pending()
         
